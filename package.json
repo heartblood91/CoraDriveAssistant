@@ -1,0 +1,22 @@
+{
+  "name": "backend-coradrive",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "helmet": "^3.21.2",
+    "morgan": "^1.9.1"
+  },
+  "scripts": {
+    "server": "set NODE_ENV=development && nodemon ./index.js",
+    "server_prod": "set NODE_ENV=production && nodemon ./index.js",
+    "test": "mocha --timeout 5000"
+  },
+  "devDependencies": {
+    "mocha": "^7.2.0",
+    "nodemon": "^2.0.2"
+  }
+}
