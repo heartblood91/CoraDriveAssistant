@@ -11,7 +11,7 @@ module.exports = function (expressServer) {
   expressServer.post("/delete/:product", updateProduct.delete);
 
   //Authentification
-  expressServer.post("/login", authentification.getFormToken);
+  expressServer.post("/getFormToken", authentification.getFormToken);
   expressServer.post("/login", authentification.login);
   expressServer.post("/logout", authentification.logout);
 
