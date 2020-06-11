@@ -1,6 +1,10 @@
 const axios = require("axios");
 
-let formToken, cookie1FromCora, cookie2FromCora;
+// Module contenant les credentials
+credentialsModule = require("./credentials");
+
+// Pour éviter toute modification du login/mdp
+const { login, mdp } = require("./credentials");
 
 const defaultHeader = {
   Host: "www.coradrive.fr",
@@ -35,6 +39,10 @@ module.exports.getFormToken = function (req, res, next) {
 
   axios(config)
     .then(function (response) {
+      // Copie du cookie
+      let cookie1FromCora = credentialsModule.cookie1FromCora;
+      let cookie2FromCora = credentialsModule.cookie2FromCora;
+
       // On récupère les 2 cookies
       cookie1FromCora = JSON.stringify(response.headers["set-cookie"][0]);
       cookie2FromCora = JSON.stringify(response.headers["set-cookie"][1]);
@@ -50,8 +58,12 @@ module.exports.getFormToken = function (req, res, next) {
       cookie2FromCora = cookie2FromCora.replace(/\[/, "");
       cookie2FromCora = cookie2FromCora.replace(/\"/, "");
 
+      //On sauvegarde les cookies
+      credentialsModule.cookie1FromCora = cookie1FromCora;
+      credentialsModule.cookie2FromCora = cookie2FromCora;
+
       // On récupère le token pour le formulaire
-      formToken = JSON.stringify(response.data.token);
+      credentialsModule.formToken = JSON.stringify(response.data.token);
 
       return res.status(200).send("ok");
     })
@@ -64,8 +76,12 @@ module.exports.getFormToken = function (req, res, next) {
 module.exports.login = function (req, res, next) {
   // Préparation de notre body
   const data =
-    '{"user":"***REMOVED***","pass":"***REMOVED***","lopotdemiel":"","formToken":' +
-    formToken +
+    '{"user":"' +
+    login +
+    '","pass":"' +
+    mdp +
+    '","lopotdemiel":"","formToken":' +
+    credentialsModule.formToken +
     "}";
 
   // Preparation de notre requete
@@ -75,7 +91,10 @@ module.exports.login = function (req, res, next) {
       "https://www.coradrive.fr/massy/ajax.html?tx_coradrive_piajax%5Bcontroller%5D=Authentication&tx_coradrive_piajax%5Baction%5D=tryLogin&tx_coradrive_piajax%5BextensionName%5D=Coradrive&tx_coradrive_piajax%5BpluginName%5D=PiAjax",
     headers: {
       ...defaultHeader,
-      Cookie: cookie1FromCora + ";" + cookie2FromCora,
+      Cookie:
+        credentialsModule.cookie1FromCora +
+        ";" +
+        credentialsModule.cookie2FromCora,
     },
     data: data,
   };
@@ -84,8 +103,9 @@ module.exports.login = function (req, res, next) {
   axios(config)
     .then(function (response) {
       // Récupère le token d'identification
-      exports.tokenAuth = JSON.stringify(response.data.user.token);
-      return res.status(401).send("ok");
+      // exports.tokenAuth = JSON.stringify(response.data.user.token);
+      credentialsModule.token = response.data.user.token;
+      return res.status(200).send("ok");
     })
 
     // En cas d'erreur
