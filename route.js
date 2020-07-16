@@ -1,6 +1,7 @@
 const updateProduct = require("./updateProduct");
 const authentification = require("./authentfication");
 const check = require("./checkPanier");
+const setListProduct = require("./setListProduct");
 
 // Gestion des routes du serveur backend
 module.exports = function (expressServer) {
@@ -17,4 +18,7 @@ module.exports = function (expressServer) {
 
   //Verifie le panier
   expressServer.post("/check", check.getIDShoppingCart);
+
+  //Récupère la BDD de produits:
+  expressServer.get("/majListProduct", setListProduct.majListProduct);
 };
