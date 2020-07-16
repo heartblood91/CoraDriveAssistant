@@ -1,0 +1,254 @@
+[
+  {
+    "Nom": "Dijon",
+    "ID": 1
+  },
+  {
+    "Nom": "Alès",
+    "ID": 72
+  },
+  {
+    "Nom": "Amphion",
+    "ID": 73
+  },
+  {
+    "Nom": "Arcueil",
+    "ID": 74
+  },
+  {
+    "Nom": "Auxerre",
+    "ID": 75
+  },
+  {
+    "Nom": "Saint-Avold",
+    "ID": 76
+  },
+  {
+    "Nom": "Belfort",
+    "ID": 77
+  },
+  {
+    "Nom": "Blois",
+    "ID": 79
+  },
+  {
+    "Nom": "Bruay",
+    "ID": 80
+  },
+  {
+    "Nom": "Cambrai",
+    "ID": 82
+  },
+  {
+    "Nom": "Clermont-Ferrand",
+    "ID": 84
+  },
+  {
+    "Nom": "Creil",
+    "ID": 87
+  },
+  {
+    "Nom": "Caen",
+    "ID": 88
+  },
+  {
+    "Nom": "Colmar",
+    "ID": 89
+  },
+  {
+    "Nom": "Courrières",
+    "ID": 90
+  },
+  {
+    "Nom": "Dorlisheim",
+    "ID": 91
+  },
+  {
+    "Nom": "Saint-Dié",
+    "ID": 92
+  },
+  {
+    "Nom": "Dole",
+    "ID": 94
+  },
+  {
+    "Nom": "Dornach",
+    "ID": 96
+  },
+  {
+    "Nom": "Dreux",
+    "ID": 99
+  },
+  {
+    "Nom": "Dunkerque",
+    "ID": 100
+  },
+  {
+    "Nom": "Saint-Dizier",
+    "ID": 101
+  },
+  {
+    "Nom": "Ermont",
+    "ID": 102
+  },
+  {
+    "Nom": "Essey-lès-Nancy",
+    "ID": 103
+  },
+  {
+    "Nom": "Evreux",
+    "ID": 104
+  },
+  {
+    "Nom": "Forbach",
+    "ID": 105
+  },
+  {
+    "Nom": "Flers-Villeneuve d'Ascq",
+    "ID": 106
+  },
+  {
+    "Nom": "Garges",
+    "ID": 107
+  },
+  {
+    "Nom": "Grosbliederstroff",
+    "ID": 108
+  },
+  {
+    "Nom": "Haguenau",
+    "ID": 110
+  },
+  {
+    "Nom": "Lens",
+    "ID": 115
+  },
+  {
+    "Nom": "Livry-Gargan",
+    "ID": 116
+  },
+  {
+    "Nom": "Limoges",
+    "ID": 118
+  },
+  {
+    "Nom": "Lunéville",
+    "ID": 119
+  },
+  {
+    "Nom": "Massy",
+    "ID": 120
+  },
+  {
+    "Nom": "Metz-Technopôle",
+    "ID": 121
+  },
+  {
+    "Nom": "Sainte-Marie-Aux-Chênes",
+    "ID": 122
+  },
+  {
+    "Nom": "Mondelange",
+    "ID": 123
+  },
+  {
+    "Nom": "Montbéliard",
+    "ID": 124
+  },
+  {
+    "Nom": "Moulins-lès-Metz",
+    "ID": 125
+  },
+  {
+    "Nom": "Nancy Houdemont",
+    "ID": 129
+  },
+  {
+    "Nom": "Reims Cormontreuil",
+    "ID": 131
+  },
+  {
+    "Nom": "Remiremont",
+    "ID": 132
+  },
+  {
+    "Nom": "Reims Neuvillette",
+    "ID": 133
+  },
+  {
+    "Nom": "Rennes",
+    "ID": 135
+  },
+  {
+    "Nom": "Sarrebourg",
+    "ID": 136
+  },
+  {
+    "Nom": "Saint-Malo",
+    "ID": 137
+  },
+  {
+    "Nom": "Soissons",
+    "ID": 138
+  },
+  {
+    "Nom": "Saint-Quentin",
+    "ID": 140
+  },
+  {
+    "Nom": "Sarreguemines",
+    "ID": 141
+  },
+  {
+    "Nom": "Strasbourg Mundo'",
+    "ID": 142
+  },
+  {
+    "Nom": "Toul",
+    "ID": 143
+  },
+  {
+    "Nom": "Verdun",
+    "ID": 145
+  },
+  {
+    "Nom": "Vesoul",
+    "ID": 146
+  },
+  {
+    "Nom": "Vichy",
+    "ID": 147
+  },
+  {
+    "Nom": "Villers Semeuse",
+    "ID": 148
+  },
+  {
+    "Nom": "Val d'Yerres",
+    "ID": 149
+  },
+  {
+    "Nom": "Wattignies",
+    "ID": 150
+  },
+  {
+    "Nom": "Wittenheim",
+    "ID": 151
+  },
+  {
+    "Nom": "Metz centre-ville",
+    "ID": 157
+  },
+  {
+    "Nom": "Bourgoin-Jallieu",
+    "ID": 160
+  },
+  {
+    "Nom": "Pavillons-sous-Bois",
+    "ID": 164
+  },
+  {
+    "Nom": "Charleville Mézières",
+    "ID": 166
+  }
+]
