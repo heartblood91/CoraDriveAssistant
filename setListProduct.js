@@ -1,15 +1,11 @@
 const axios = require("axios");
 const fs = require("fs");
 
-// Fake global list
 // Récupère des informations de crédentials sans modification possible
-const {
-  // testListeCourseGlobal, // A supprimer
-  // testListeCourseUnique, // A supprimer
-  idShop,
-  nameOfListUseForBDD,
-} = require("./credentials");
-const { resolve } = require("path");
+const { idShop, nameOfListUseForBDD } = require("./credentials");
+
+//Récupère l'ancienne liste JSON
+const oldUniqueList = require("./constante/list-product.json");
 
 // Module contenant les credentials
 credentialsModule = require("./credentials");
@@ -52,9 +48,6 @@ const getLists = () => {
       .then(function (response) {
         // Récupère l'ensemble des listes de courses
         const oldGlobalList = response.data.data;
-
-        // Fake listes pour le test
-        //const oldGlobalList = testListeCourseGlobal.data;
 
         // Je cherche la liste qui va me servir pour créer la BDD
         // Variable representant l'index de la liste
@@ -104,41 +97,124 @@ formatListProduct = () => {
       ...defaultHeader,
     },
   };
+
   return new Promise((resolve, reject) => {
+    let message = "";
+    let iProductAdd = 0;
+    let iProductMaj = 0;
+
     axios(config)
       .then(function (response) {
         // Récupère l'ensemble des produits de la liste de courses
-        const oldUniqueList = response.data.data.attributes.produits.data;
 
-        // Fake liste de course
-        //const oldUniqueList = testListeCourseUnique.data.attributes.produits.data;
+        const newUniqueListWithoutFormat =
+          response.data.data.attributes.produits.data;
 
-        // Transforme la liste de course en une liste de produit adapté aux requetes de Cora
-        const newUniqueList = oldUniqueList.map((item) => {
-          return {
-            idProduct: item.attributes.produit.data.id,
-            designation: item.attributes.produit.data.attributes.designation,
-            googleIngredientCmd:
-              item.attributes.produit.data.attributes.designation, //par défaut il s'agit de la désignation du produit détérminé par Cora
-            pft: item.attributes.produit.data.attributes.pft,
-            quantite: 0, // Par défaut on en a 0 dans le panier
-            prix: item.attributes.produit.data.attributes.prix,
-            context_id: 244, //Fixé à 244 par Cora d'après plusieurs tests
-            syncID: null, //Fixé à null si absent du panier
-          };
+        // Verifie si le produit est déjà dans la liste
+        newUniqueListWithoutFormat.map((item) => {
+          let isCommon = false;
+          //Je boucle sur tous les items de la liste que nous avons en stock
+          oldUniqueList.map((oldItem) => {
+            //Si je trouve l'ID correspondant  --> ABORT
+            if (oldItem.idProduct === item.attributes.produit.data.id) {
+              // Je vérifie que le prix et la désignation n'est pas été MAJ
+              if (
+                oldItem.designation !==
+                  item.attributes.produit.data.attributes.designation ||
+                oldItem.prix !== item.attributes.produit.data.attributes.prix
+              ) {
+                // Par précaution, je vérifie que la MAJ apporte quelque chose (pas de undefined || null || "" || " ")
+                if (
+                  item.attributes.produit.data.attributes.designation == null ||
+                  item.attributes.produit.data.attributes.designation.trim()
+                    .length === 0 ||
+                  item.attributes.produit.data.attributes.prix == null ||
+                  item.attributes.produit.data.attributes.prix.trim().length ===
+                    0
+                ) {
+                } else {
+                  oldItem.designation =
+                    item.attributes.produit.data.attributes.designation;
+                  oldItem.prix = item.attributes.produit.data.attributes.prix;
+
+                  iProductMaj += 1;
+                }
+              }
+
+              return (isCommon = true);
+            }
+          });
+
+          // Si nouvel ID alors je l'ajoute à la liste actuel:
+          if (!isCommon) {
+            // Transforme la liste de course en une liste de produit adapté aux requetes de Cora
+            oldUniqueList.push({
+              idProduct: item.attributes.produit.data.id,
+              designation: item.attributes.produit.data.attributes.designation,
+              googleIngredientCmd:
+                item.attributes.produit.data.attributes.designation, //par défaut il s'agit de la désignation du produit détérminé par Cora
+              pft: item.attributes.produit.data.attributes.pft,
+              quantite: 0, // Par défaut on en a 0 dans le panier
+              prix: item.attributes.produit.data.attributes.prix,
+              context_id: 244, //Fixé à 244 par Cora d'après plusieurs tests
+              syncID: null, //Fixé à null si absent du panier
+            });
+
+            //Compte le nombre de produits ajouter à la liste
+            iProductAdd += 1;
+          }
         });
+
+        // Création du message avec le(s) produit(s) ajouté(s):
+        if (iProductAdd > 0) {
+          message =
+            iProductAdd.toString() +
+            (iProductAdd >= 2 ? " produits ajoutés. " : " produit ajouté. ");
+        }
+
+        // idem pour le(s) produit(s) MAJ:
+        if (iProductMaj > 0) {
+          message =
+            message +
+            iProductMaj.toString() +
+            (iProductMaj >= 2
+              ? " produits mises à jour. "
+              : " produit mise à jour. ");
+        }
 
         // Ouvre le fichier json
         let writeStream = fs.createWriteStream("constante/list-product.json");
 
         // Inscrit dans le fichier, la liste des produits favoris (encodage utf8)
-        writeStream.write(JSON.stringify(newUniqueList, null, 2), "utf8");
+        writeStream.write(JSON.stringify(oldUniqueList, null, 2), "utf8");
 
         // Ferme le fichier
         writeStream.end();
 
-        // Retourne au client que tout s'est bien déroulé
-        resolve("Ok");
+        // Retourne au client:
+        // Il manque des produits car indisponibles sur le site CoraDrive actuellement
+        const indispo = response.data.meta.items_indisponibles;
+
+        // S'il y a des produits indisponibles:
+        if (indispo.length > 0) {
+          const productsIndispo = indispo.map((item) => {
+            return " " + item.designation;
+          });
+
+          // Création du message
+          message =
+            message +
+            "Je n'ai pas pu compléter la liste avec " +
+            (indispo.length >= 2 ? "ces produits:" : "ce produit:") +
+            productsIndispo;
+
+          // Transmission du message
+          resolve(message);
+
+          // Tout est ok
+        } else {
+          resolve(message);
+        }
       })
       .catch(function (err) {
         reject(err);
