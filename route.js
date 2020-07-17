@@ -1,6 +1,7 @@
 const updateProduct = require("./updateProduct");
 const authentification = require("./authentfication");
 const check = require("./checkPanier");
+const test = require("./test/test");
 const setListProduct = require("./setListProduct");
 
 // Gestion des routes du serveur backend
@@ -12,9 +13,7 @@ module.exports = function (expressServer) {
   expressServer.post("/delete/:product", updateProduct.delete);
 
   //Authentification
-  expressServer.post("/getFormToken", authentification.getFormToken);
   expressServer.post("/login", authentification.login);
-  expressServer.post("/logout", authentification.logout);
 
   //Verifie le panier
   expressServer.post("/check", check.getIDShoppingCart);

@@ -22,7 +22,7 @@ const defaultHeader = {
   "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
 };
 
-module.exports.getFormToken = function (req, res, next) {
+getFormToken = () => {
   // Préparation de notre body
   const data = '{"action":"token-connexion"}';
 
@@ -36,44 +36,56 @@ module.exports.getFormToken = function (req, res, next) {
     },
     data: data,
   };
+  return new Promise((resolve, reject) => {
+    axios(config)
+      .then(function (response) {
+        // Copie du cookie
+        let cookie1FromCora = credentialsModule.cookie1FromCora;
+        let cookie2FromCora = credentialsModule.cookie2FromCora;
 
-  axios(config)
-    .then(function (response) {
-      // Copie du cookie
-      let cookie1FromCora = credentialsModule.cookie1FromCora;
-      let cookie2FromCora = credentialsModule.cookie2FromCora;
+        // On récupère les 2 cookies
+        cookie1FromCora = JSON.stringify(response.headers["set-cookie"][0]);
+        cookie2FromCora = JSON.stringify(response.headers["set-cookie"][1]);
 
-      // On récupère les 2 cookies
-      cookie1FromCora = JSON.stringify(response.headers["set-cookie"][0]);
-      cookie2FromCora = JSON.stringify(response.headers["set-cookie"][1]);
+        // Suppression des crochets + des valeurs inutiles
+        cookie1FromCora = cookie1FromCora.split(";");
+        cookie1FromCora = cookie1FromCora[0];
+        cookie1FromCora = cookie1FromCora.replace(/\[/, "");
+        cookie1FromCora = cookie1FromCora.replace(/\"/, "");
 
-      // Suppression des crochets + des valeurs inutiles
-      cookie1FromCora = cookie1FromCora.split(";");
-      cookie1FromCora = cookie1FromCora[0];
-      cookie1FromCora = cookie1FromCora.replace(/\[/, "");
-      cookie1FromCora = cookie1FromCora.replace(/\"/, "");
+        cookie2FromCora = cookie2FromCora.split(";");
+        cookie2FromCora = cookie2FromCora[0];
+        cookie2FromCora = cookie2FromCora.replace(/\[/, "");
+        cookie2FromCora = cookie2FromCora.replace(/\"/, "");
 
-      cookie2FromCora = cookie2FromCora.split(";");
-      cookie2FromCora = cookie2FromCora[0];
-      cookie2FromCora = cookie2FromCora.replace(/\[/, "");
-      cookie2FromCora = cookie2FromCora.replace(/\"/, "");
+        //On sauvegarde les cookies
+        credentialsModule.cookie1FromCora = cookie1FromCora;
+        credentialsModule.cookie2FromCora = cookie2FromCora;
 
-      //On sauvegarde les cookies
-      credentialsModule.cookie1FromCora = cookie1FromCora;
-      credentialsModule.cookie2FromCora = cookie2FromCora;
+        // On vérifie la présence d'un token
+        if (
+          response.data.token == null ||
+          response.data.token.trim().length === 0
+        ) {
+          // Aucun token reçu, on stop la connexion et on prévient l'utilisateur
+          reject(
+            "Oups... Aucun token de formulaire dans la requête, je ne peux pas continuer..."
+          );
+        } else {
+          // Tout s'est bien déroulé, on save le token
 
-      // On récupère le token pour le formulaire
-      credentialsModule.formToken = JSON.stringify(response.data.token);
-
-      return res.status(200).send("ok");
-    })
-    // En cas d'erreur
-    .catch(function (error) {
-      return res.status(401).send(error);
-    });
+          // On récupère le token pour le formulaire
+          credentialsModule.formToken = JSON.stringify(response.data.token);
+          resolve("Ok");
+        }
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+  });
 };
 
-module.exports.login = function (req, res, next) {
+getLoginToken = () => {
   // Préparation de notre body
   const data =
     '{"user":"' +
@@ -99,21 +111,52 @@ module.exports.login = function (req, res, next) {
     data: data,
   };
 
-  // Envoie de notre requete
-  axios(config)
-    .then(function (response) {
-      // Récupère le token d'identification
-      // exports.tokenAuth = JSON.stringify(response.data.user.token);
-      credentialsModule.token = response.data.user.token;
-      return res.status(200).send("ok");
-    })
+  return new Promise((resolve, reject) => {
+    // Envoie de notre requete
+    axios(config)
+      .then(function (response) {
+        // On vérifie la présence d'un token
+        if (
+          response.data.user.token == null ||
+          response.data.user.token.trim().length === 0
+        ) {
+          // Aucun token reçu, on stop la connexion et on prévient l'utilisateur
+          reject(
+            "Oups... Aucun token de connexion dans la requête, je ne peux pas continuer..."
+          );
+        } else {
+          // Tout s'est bien déroulé, on save le token
 
-    // En cas d'erreur
-    .catch(function (error) {
-      return res.status(401).send(error);
-    });
+          // Récupère le token d'identification
+          credentialsModule.token = response.data.user.token;
+          resolve("Ok");
+        }
+      })
+
+      // En cas d'erreur
+      .catch(function (err) {
+        reject(err);
+      });
+  });
 };
 
-module.exports.logout = function (req, res, next) {
-  return res.status(200).send("Test: ok");
+module.exports.login = function (req, res, next) {
+  // Etape 1: Je récupère le token de formulaire, indispensable pour la connexion
+  getFormToken()
+    .then(function () {
+      // Etape 2: Si j'ai bien récupéré le token, alors je peux m'idenfitier sur le site et récupérer un token de connexion
+      getLoginToken()
+        .then(function (resultat) {
+          return res.status(200).send(resultat);
+        })
+        .catch(function (err) {
+          // Echec de l'étape 2 (soit erreur de requête soit pas de token)
+          return res.status(400).send(err);
+        });
+    })
+
+    // Echec de l'étape 1 (soit erreur de requête soit pas de token)
+    .catch(function (err) {
+      return res.status(400).send(err);
+    });
 };
