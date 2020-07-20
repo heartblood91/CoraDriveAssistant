@@ -1,7 +1,6 @@
 const updateProduct = require("./updateProduct");
 const authentification = require("./authentfication");
 const check = require("./checkPanier");
-const test = require("./test/test");
 const setListProduct = require("./setListProduct");
 
 // Gestion des routes du serveur backend
