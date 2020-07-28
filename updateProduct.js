@@ -67,8 +67,13 @@ const createRequest = (type, nameOfProduct) => {
         )
       : Object.assign({}, theProduct);
 
-    // Etape 4: En fonction du type (achat VS vente) je mets à jour la quantité
-    newProduct.quantite = type === "add" ? newProduct.quantite + 1 : 0;
+    // Etape 4: En fonction du type (ajout VS soustrait VS supprime) je mets à jour la quantité
+    newProduct.quantite =
+      type === "add"
+        ? newProduct.quantite + 1
+        : type === "remove"
+        ? newProduct.quantite - 1
+        : 0;
 
     // Etape 5: création du body
     const data =
