@@ -140,23 +140,29 @@ getLoginToken = () => {
   });
 };
 
-module.exports.login = function (req, res, next) {
+module.exports.login = () => {
+  // function (req, res, next) {
   // Etape 1: Je récupère le token de formulaire, indispensable pour la connexion
-  getFormToken()
-    .then(function () {
-      // Etape 2: Si j'ai bien récupéré le token, alors je peux m'idenfitier sur le site et récupérer un token de connexion
-      getLoginToken()
-        .then(function (resultat) {
-          return res.status(200).send(resultat);
-        })
-        .catch(function (err) {
-          // Echec de l'étape 2 (soit erreur de requête soit pas de token)
-          return res.status(400).send(err);
-        });
-    })
+  return new Promise((resolve, reject) => {
+    getFormToken()
+      .then(function () {
+        // Etape 2: Si j'ai bien récupéré le token, alors je peux m'idenfitier sur le site et récupérer un token de connexion
+        getLoginToken()
+          .then(function (resultat) {
+            //return res.status(200).send(resultat);
+            resolve("Ok");
+          })
+          .catch(function (err) {
+            // Echec de l'étape 2 (soit erreur de requête soit pas de token)
+            //return res.status(400).send(err);
+            reject(err);
+          });
+      })
 
-    // Echec de l'étape 1 (soit erreur de requête soit pas de token)
-    .catch(function (err) {
-      return res.status(400).send(err);
-    });
+      // Echec de l'étape 1 (soit erreur de requête soit pas de token)
+      .catch(function (err) {
+        // return res.status(400).send(err);
+        reject(err);
+      });
+  });
 };
