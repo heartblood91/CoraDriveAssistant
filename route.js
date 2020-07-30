@@ -1,4 +1,4 @@
-//const setListProduct = require("./setListProduct");
+const setListProduct = require("./sequenceSetListProduct");
 const sequenceUpdate = require("./sequenceUpdateCart");
 
 // Gestion des routes du serveur backend
@@ -10,5 +10,5 @@ module.exports = function (expressServer) {
   );
 
   //Récupère la BDD de produits:
-  //expressServer.get("/majListProduct", setListProduct.majListProduct);
+  expressServer.get("/majListProduct", setListProduct.majListProduct);
 };

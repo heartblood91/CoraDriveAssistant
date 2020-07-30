@@ -1,20 +1,17 @@
 const axios = require("axios");
 const fs = require("fs");
 
-// Récupère des informations de crédentials sans modification possible
-const { idShop, nameOfListUseForBDD } = require("./credentials");
+// Récupère le module de connexion + les credentials
+authModule = require("./authentfication");
+credentialsModule = require("./credentials");
 
 //Récupère l'ancienne liste JSON
 const oldUniqueList = require("./constante/list-product.json");
-
-// Module contenant les credentials
-credentialsModule = require("./credentials");
 
 // Header identique dans les 2 requêtes
 const defaultHeader = {
   Host: "api.coradrive.fr",
   Pragma: "no-cache",
-  Authorization: "Bearer " + credentialsModule.token,
   "cora-auth": "apidrive",
   Accept: "application/vnd.api.v1+json",
   "Cache-Control": "no-cache",
@@ -37,9 +34,10 @@ const getLists = () => {
     method: "get",
     url:
       "https://api.coradrive.fr/api/me/listeDeCourses?ean_unique=1&magasin_id=" +
-      idShop,
+      credentialsModule.idShop,
     headers: {
       ...defaultHeader,
+      Authorization: "Bearer " + credentialsModule.token, //Ajout du token car il est fixé après la connexion
     },
   };
 
@@ -55,7 +53,7 @@ const getLists = () => {
 
         // Je parcours toutes les listes de courses pour trouver une correspondance
         oldGlobalList.map((list, index) => {
-          if (list.attributes.titre === nameOfListUseForBDD) {
+          if (list.attributes.titre === credentialsModule.nameOfListUseForBDD) {
             indexOfTheList = index;
           }
         });
@@ -72,11 +70,12 @@ const getLists = () => {
           // Retourne au client qu'aucune correspondance n'a été trouvé
           reject(
             "ATTENTION, je ne trouve pas de liste de course avec le nom: " +
-              nameOfListUseForBDD
+              credentialsModule.nameOfListUseForBDD
           );
         }
       })
       .catch(function (error) {
+        console.log("erreur de connexion à Cora pour la liste");
         // Retourne au client une erreur
         reject(error);
       });
@@ -92,9 +91,10 @@ formatListProduct = () => {
       "https://api.coradrive.fr/api/me/listeDeCourses/" +
       credentialsModule.iDOfListUseForBDD +
       "?ean_unique=1&magasin_id=" +
-      idShop,
+      credentialsModule.idShop,
     headers: {
       ...defaultHeader,
+      Authorization: "Bearer " + credentialsModule.token, //Ajout du token car il est fixé après la connexion
     },
   };
 
@@ -224,22 +224,41 @@ formatListProduct = () => {
 
 // Récupère la liste des produits sur la dite liste de course
 module.exports.majListProduct = function (req, res, next) {
-  // Etape 1: Je récupère l'ID de la liste de course utilisée pour créer la BDD parmis l'ensemble des listes de courses en favoris de l'utilisateur
-  getLists()
-    .then(function () {
-      // Etape 2: Si j'ai bien récupéré un ID alors, je peux récupérer le contenu de la liste de course et la formater
-      formatListProduct()
-        .then(function (resultat) {
-          return res.status(200).send(resultat);
+  // Etape 1: Je me connecte
+  authModule.login().then(function (resultat) {
+    if (resultat === "Ok") {
+      console.log("Ok etape 1");
+      // Etape 2: Je récupère l'ID de la liste de course utilisée pour créer la BDD parmis l'ensemble des listes de courses en favoris de l'utilisateur
+      getLists()
+        .then(function () {
+          console.log("Ok etape 2");
+
+          // Etape 3: Si j'ai bien récupéré un ID alors, je peux récupérer le contenu de la liste de course et la formater
+          formatListProduct()
+            .then(function (resultat) {
+              console.log("Ok etape 3");
+
+              return res.status(200).send(resultat);
+            })
+            .catch(function (err) {
+              console.log("NOk etape 3");
+
+              // Echec de l'étape 3 (erreur de requête)
+              return res.status(400).send(err);
+            });
         })
+
+        // Echec de l'étape 2 (soit erreur de requête soit pas de correspondance)
         .catch(function (err) {
-          // Echec de l'étape 2 (erreur de requête)
+          console.log("NOk etape 2");
+
           return res.status(400).send(err);
         });
-    })
+    } else {
+      // Echec étape 1
+      console.log("NOk etape 1");
 
-    // Echec de l'étape 1 (soit erreur de requête soit pas de correspondance)
-    .catch(function (err) {
-      return res.status(400).send(err);
-    });
+      return res.status(400).send("Echec lors de l'authentification");
+    }
+  });
 };
