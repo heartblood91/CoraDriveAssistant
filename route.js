@@ -1,15 +1,14 @@
-const authentification = require("./authentfication");
-const check = require("./checkPanier");
-const setListProduct = require("./setListProduct");
+//const setListProduct = require("./setListProduct");
+const sequenceUpdate = require("./sequenceUpdateCart");
 
 // Gestion des routes du serveur backend
 module.exports = function (expressServer) {
-  //Authentification
-  expressServer.post("/login", authentification.login);
-
-  //Verifie le panier
-  expressServer.post("/check", check.getIDShoppingCart);
+  // Séquence de MAJ du panier (ajout/soustraction/suppression d'un item)
+  expressServer.post(
+    "/update/:type/item/:product",
+    sequenceUpdate.updateCartComplete
+  );
 
   //Récupère la BDD de produits:
-  expressServer.get("/majListProduct", setListProduct.majListProduct);
+  //expressServer.get("/majListProduct", setListProduct.majListProduct);
 };
