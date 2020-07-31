@@ -1,10 +1,14 @@
 const axios = require("axios");
+const fs = require("fs");
 
 // Module contenant les credentials
 credentialsModule = require("./credentials");
 
 // Récupère la BDD (fichier json)
 const jsonBDD = require("./constante/list-product.json");
+
+// Partage les infos sur le produit trouvé dans la BDD
+let newProduct = "";
 
 //Fonction, sous forme de promesse, qui ajoute ou suprime un élément à la liste de course
 module.exports.update = (addOrRemove, product) => {
@@ -18,7 +22,41 @@ module.exports.update = (addOrRemove, product) => {
 
     axios(config)
       .then(function (response) {
-        resolve(response.data);
+        // On vérifie les retours
+        const codeError =
+          response.data.items[0].errors !== undefined
+            ? response.data.items[0].errors[0].code
+            : null;
+
+        // Gestion du code erreur: MAJ du produit alors je mets à jour la BDD avec les nouvelles informations
+        if (codeError !== null && codeError === 4) {
+          // Ouvre le fichier json
+          let writeStream = fs.createWriteStream("constante/list-product.json");
+
+          // Je cherche le produit correspondant
+          const jsonBDDCopy = jsonBDD.map((item) => {
+            if (item.idProduct === newProduct.idProduct) {
+              // Je change le prix
+              item.prix = response.data.items[0].errors[0].new_prix;
+            }
+            return item;
+          });
+          // Inscrit dans le fichier, la MAJ (encodage utf8)
+          writeStream.write(JSON.stringify(jsonBDDCopy, null, 2), "utf8");
+
+          // Ferme le fichier
+          writeStream.end();
+
+          // Gestion du code erreur: Quantité trop importante
+        } else if (codeError !== null && codeError === 2) {
+          reject("Quantité maximum atteinte. Aucun produit ajouté au panier.");
+
+          // Gestion des cas d'erreur (indispo ou inconnu)
+        } else if (codeError !== null && codeError === 0) {
+          reject(response.data.items[0].errors[0].produit);
+        }
+
+        resolve("Ok le produit a été ajouté au panier");
       })
       .catch(function (err) {
         reject(err);
@@ -48,6 +86,7 @@ const createRequest = (type, nameOfProduct) => {
   } else {
     // Construction de data (body)
     // Etape 2: Je vérifie l'existance du produit dans le panier
+
     let productIsPresent = false;
     let indexOfProduct = 0;
 
@@ -60,7 +99,7 @@ const createRequest = (type, nameOfProduct) => {
     });
 
     // Etape 3: si le produit est présent, je mets à jour le produit selon les informations que je dispose sinon je conserve les informations provenant du backend
-    let newProduct = productIsPresent
+    newProduct = productIsPresent
       ? Object.assign(
           {},
           credentialsModule.shopCart.itemsPanier[indexOfProduct]

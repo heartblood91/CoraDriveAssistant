@@ -27,7 +27,7 @@ module.exports.updateCartComplete = function (req, res, next) {
                   updateProduct
                     .update(typeUpdate, product)
                     .then(function (resultat) {
-                      return res.status(200).send("Ok");
+                      return res.status(200).send(resultat);
                     })
 
                     .catch((err) => {
@@ -42,7 +42,6 @@ module.exports.updateCartComplete = function (req, res, next) {
                 });
             } else {
               // Echec étape 2
-
               return res.status(400).send("Echec de la MAJ du panier");
             }
           })
