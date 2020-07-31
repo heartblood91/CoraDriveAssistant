@@ -47,7 +47,6 @@ module.exports.getIDShoppingCart = () => {
         // Récupérer les informations qui nous intéresse en ométant les informations innutiles
         // Le panier sans modification provenant de CoraDrive
         const oldShopCart = response.data;
-
         // L'ID du panier
         const idPanier = oldShopCart.data.id;
 
@@ -58,7 +57,10 @@ module.exports.getIDShoppingCart = () => {
         lastSync = lastSync.replace(/\s/g, "%20");
 
         // Les élements du panier si existant
-        const globalPanier = oldShopCart.data.attributes.lignes_panier.data;
+        const globalPanier =
+          oldShopCart.data.attributes.lignes_panier === null
+            ? []
+            : oldShopCart.data.attributes.lignes_panier.data;
 
         // Je fais un map sur l'ensemble des items pour récupérer les éléments qui nous interesse
         const itemsPanier = globalPanier.map((item) => {
