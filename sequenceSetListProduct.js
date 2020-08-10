@@ -227,22 +227,15 @@ module.exports.majListProduct = function (req, res, next) {
   // Etape 1: Je me connecte
   authModule.login().then(function (resultat) {
     if (resultat === "Ok") {
-      console.log("Ok etape 1");
       // Etape 2: Je récupère l'ID de la liste de course utilisée pour créer la BDD parmis l'ensemble des listes de courses en favoris de l'utilisateur
       getLists()
         .then(function () {
-          console.log("Ok etape 2");
-
           // Etape 3: Si j'ai bien récupéré un ID alors, je peux récupérer le contenu de la liste de course et la formater
           formatListProduct()
             .then(function (resultat) {
-              console.log("Ok etape 3");
-
               return res.status(200).send(resultat);
             })
             .catch(function (err) {
-              console.log("NOk etape 3");
-
               // Echec de l'étape 3 (erreur de requête)
               return res.status(400).send(err);
             });
@@ -250,13 +243,10 @@ module.exports.majListProduct = function (req, res, next) {
 
         // Echec de l'étape 2 (soit erreur de requête soit pas de correspondance)
         .catch(function (err) {
-          console.log("NOk etape 2");
-
           return res.status(400).send(err);
         });
     } else {
       // Echec étape 1
-      console.log("NOk etape 1");
 
       return res.status(400).send("Echec lors de l'authentification");
     }
