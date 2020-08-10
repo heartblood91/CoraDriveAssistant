@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const expressServer = express();
 const router = require("./route");
@@ -23,7 +22,6 @@ expressServer.use(helmet());
 
 // Permet au serveur d'utiliser des extensions (morgan pour les api + de parser le json + les cors)
 expressServer.use(morgan("combined"));
-expressServer.use(bodyParser.json({ type: "*/*" }));
 expressServer.use(cors());
 
 // Créer le serveur
