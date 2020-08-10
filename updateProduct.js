@@ -2,7 +2,7 @@ const axios = require("axios");
 const fs = require("fs");
 
 // Module contenant les credentials
-credentialsModule = require("./credentials");
+configFile = require("./constante/config");
 
 // Récupère la BDD (fichier json)
 const jsonBDD = require("./constante/list-product.json");
@@ -91,7 +91,7 @@ const createRequest = (type, nameOfProduct) => {
     let indexOfProduct = 0;
 
     // Permet de vérifier si le produit est présent pour un update
-    credentialsModule.shopCart.itemsPanier.map((item, index) => {
+    configFile.shopCart.itemsPanier.map((item, index) => {
       if (item.idProduct === theProduct.idProduct) {
         productIsPresent = true;
         indexOfProduct = index;
@@ -100,10 +100,7 @@ const createRequest = (type, nameOfProduct) => {
 
     // Etape 3: si le produit est présent, je mets à jour le produit selon les informations que je dispose sinon je conserve les informations provenant du backend
     newProduct = productIsPresent
-      ? Object.assign(
-          {},
-          credentialsModule.shopCart.itemsPanier[indexOfProduct]
-        )
+      ? Object.assign({}, configFile.shopCart.itemsPanier[indexOfProduct])
       : Object.assign({}, theProduct);
 
     // Etape 4: En fonction du type (ajout VS soustrait VS supprime) je mets à jour la quantité
@@ -137,15 +134,15 @@ const createRequest = (type, nameOfProduct) => {
       method: "post",
       url:
         "https://api.coradrive.fr/api/magasins/120/panier/" +
-        credentialsModule.shopCart.idPanier +
+        configFile.shopCart.idPanier +
         "/items?uuid=" +
-        credentialsModule.uuidCora +
+        configFile.uuidCora +
         "&" +
-        credentialsModule.shopCart.lastSync,
+        configFile.shopCart.lastSync,
       headers: {
         Host: "api.coradrive.fr",
         Pragma: "no-cache",
-        Authorization: "Bearer " + credentialsModule.token,
+        Authorization: "Bearer " + configFile.token,
         "cora-auth": "apidrive",
         Accept: "application/vnd.api.v1+json",
         "Cache-Control": "no-cache",

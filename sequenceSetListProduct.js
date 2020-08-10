@@ -3,7 +3,7 @@ const fs = require("fs");
 
 // Récupère le module de connexion + les credentials
 authModule = require("./authentfication");
-credentialsModule = require("./credentials");
+configFile = require("./constante/config");
 
 //Récupère l'ancienne liste JSON
 const oldUniqueList = require("./constante/list-product.json");
@@ -34,10 +34,10 @@ const getLists = () => {
     method: "get",
     url:
       "https://api.coradrive.fr/api/me/listeDeCourses?ean_unique=1&magasin_id=" +
-      credentialsModule.idShop,
+      configFile.idShop,
     headers: {
       ...defaultHeader,
-      Authorization: "Bearer " + credentialsModule.token, //Ajout du token car il est fixé après la connexion
+      Authorization: "Bearer " + configFile.token, //Ajout du token car il est fixé après la connexion
     },
   };
 
@@ -53,7 +53,7 @@ const getLists = () => {
 
         // Je parcours toutes les listes de courses pour trouver une correspondance
         oldGlobalList.map((list, index) => {
-          if (list.attributes.titre === credentialsModule.nameOfListUseForBDD) {
+          if (list.attributes.titre === configFile.nameOfListUseForBDD) {
             indexOfTheList = index;
           }
         });
@@ -61,8 +61,7 @@ const getLists = () => {
         // Si une correspondance est trouvé alors je mets à jour la variable
         // Si non je préviens l'utilisateur
         if (indexOfTheList > -1) {
-          credentialsModule.iDOfListUseForBDD =
-            oldGlobalList[indexOfTheList].id;
+          configFile.iDOfListUseForBDD = oldGlobalList[indexOfTheList].id;
 
           // Retourne au client que tout s'est bien déroulé
           resolve("Ok");
@@ -70,7 +69,7 @@ const getLists = () => {
           // Retourne au client qu'aucune correspondance n'a été trouvé
           reject(
             "ATTENTION, je ne trouve pas de liste de course avec le nom: " +
-              credentialsModule.nameOfListUseForBDD
+              configFile.nameOfListUseForBDD
           );
         }
       })
@@ -89,12 +88,12 @@ formatListProduct = () => {
     method: "get",
     url:
       "https://api.coradrive.fr/api/me/listeDeCourses/" +
-      credentialsModule.iDOfListUseForBDD +
+      configFile.iDOfListUseForBDD +
       "?ean_unique=1&magasin_id=" +
-      credentialsModule.idShop,
+      configFile.idShop,
     headers: {
       ...defaultHeader,
-      Authorization: "Bearer " + credentialsModule.token, //Ajout du token car il est fixé après la connexion
+      Authorization: "Bearer " + configFile.token, //Ajout du token car il est fixé après la connexion
     },
   };
 

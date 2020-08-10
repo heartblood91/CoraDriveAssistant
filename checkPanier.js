@@ -2,13 +2,13 @@ const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 
 // Module contenant les credentials
-credentialsModule = require("./credentials");
+configFile = require("./constante/config");
 
 //Fonction, sous forme de promesse, qui récupère les informations provenant du panier, nécessaire à la mise à jour de celui-ci
 module.exports.getIDShoppingCart = () => {
   return new Promise((resolve, reject) => {
     // Création + stockage d'un uuid
-    credentialsModule.uuidCora = uuidv4();
+    configFile.uuidCora = uuidv4();
 
     // Préparation de notre body
     const data = "";
@@ -18,12 +18,12 @@ module.exports.getIDShoppingCart = () => {
       method: "post",
       url:
         "https://api.coradrive.fr/api/magasins/120/panier/checkStatus?uuid=" +
-        credentialsModule.uuidCora +
+        configFile.uuidCora +
         "&checkPanierDB=1&isLocalSync=1&checkStockDrive=0",
       headers: {
         Host: "api.coradrive.fr",
         Pragma: "no-cache",
-        Authorization: "Bearer " + credentialsModule.token,
+        Authorization: "Bearer " + configFile.token,
         "cora-auth": "apidrive",
         Accept: "application/vnd.api.v1+json",
         "Cache-Control": "no-cache",
@@ -76,7 +76,7 @@ module.exports.getIDShoppingCart = () => {
         });
 
         //Stock toutes les informations dans la variable shopCart
-        credentialsModule.shopCart = { idPanier, lastSync, itemsPanier };
+        configFile.shopCart = { idPanier, lastSync, itemsPanier };
 
         resolve("Ok");
       })

@@ -8,11 +8,13 @@ const compression = require("compression");
 const helmet = require("helmet");
 
 // Récupère les informations sensibles
-const { PORT_DEV, PORT_PROD } = require("./credentials");
+const configFile = require("./constante/config");
 
 // Port:
 const PORT =
-  process.env.NODE_ENV.indexOf("production") > -1 ? PORT_PROD : PORT_DEV;
+  process.env.NODE_ENV.indexOf("production") > -1
+    ? configFile.PORT_PROD
+    : configFile.PORT_DEV;
 
 // Permet d'utiliser  la compression gzip --> amélioration des perfs
 expressServer.use(compression());
