@@ -1,4 +1,6 @@
 const axios = require("axios");
+const fs = require("fs");
+const dotenv = require("dotenv");
 
 // Module contenant les credentials
 configFile = require("./constante/config");
@@ -72,7 +74,7 @@ getFormToken = () => {
           // Tout s'est bien déroulé, on save le token
 
           // On récupère le token pour le formulaire
-          configFile._formToken = JSON.stringify(response.data.token);
+          configFile.formToken = JSON.stringify(response.data.token);
           resolve("Ok");
         }
       })
@@ -80,6 +82,27 @@ getFormToken = () => {
         reject(err);
       });
   });
+};
+
+writeTokenInFile = (token) => {
+  // Etape 1: Je récupère toutes les informations du fichier .env
+  const envConfig = dotenv.parse(fs.readFileSync(".env"));
+
+  // Etape 2: Je mets à jour la copie du fichier .env + la variable d'environnement token
+  process.env.CORA_token = envConfig.CORA_token = token;
+
+  //Etape 3: Je stock dans le fichier
+
+  // Ouvre le fichier json
+  let writeStream = fs.createWriteStream(".env");
+
+  // Inscrit dans le fichier, toutes les variables d'environnement
+  for (const k in envConfig) {
+    writeStream.write([k] + '="' + envConfig[k] + '"\n');
+  }
+
+  // Ferme le fichier
+  writeStream.end();
 };
 
 getLoginToken = () => {
@@ -121,9 +144,8 @@ getLoginToken = () => {
           );
         } else {
           // Tout s'est bien déroulé, on save le token
+          writeTokenInFile(response.data.user.token);
 
-          // Récupère le token d'identification
-          configFile.token = response.data.user.token;
           resolve("Ok");
         }
       })
@@ -145,7 +167,7 @@ verifyToken = () => {
     headers: {
       ...defaultHeader,
       Host: "api.coradrive.fr",
-      Authorization: "Bearer " + configFile.token,
+      Authorization: "Bearer " + process.env.CORA_token,
     },
   };
 

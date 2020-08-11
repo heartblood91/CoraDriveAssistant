@@ -12,7 +12,6 @@ module.exports = {
   nameOfListUseForBDD: process.env.CORA_nameOfListUseForBDD,
 
   // Reset à chaque reboot
-  token: "",
   formToken: "",
   cookie1FromCora: "",
   cookie2FromCora: "",

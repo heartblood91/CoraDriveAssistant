@@ -37,7 +37,7 @@ const getLists = () => {
       configFile.idShop,
     headers: {
       ...defaultHeader,
-      Authorization: "Bearer " + configFile.token, //Ajout du token car il est fixé après la connexion
+      Authorization: "Bearer " + process.env.CORA_token, //Ajout du token car il est fixé après la connexion
     },
   };
 
@@ -93,7 +93,7 @@ formatListProduct = () => {
       configFile.idShop,
     headers: {
       ...defaultHeader,
-      Authorization: "Bearer " + configFile.token, //Ajout du token car il est fixé après la connexion
+      Authorization: "Bearer " + process.env.CORA_token, //Ajout du token car il est fixé après la connexion
     },
   };
 

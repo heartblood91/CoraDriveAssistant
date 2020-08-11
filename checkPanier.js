@@ -23,7 +23,7 @@ module.exports.getIDShoppingCart = () => {
       headers: {
         Host: "api.coradrive.fr",
         Pragma: "no-cache",
-        Authorization: "Bearer " + configFile.token,
+        Authorization: "Bearer " + process.env.CORA_token,
         "cora-auth": "apidrive",
         Accept: "application/vnd.api.v1+json",
         "Cache-Control": "no-cache",
