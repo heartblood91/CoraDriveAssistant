@@ -1,13 +1,9 @@
 const axios = require("axios");
 
 // Module contenant les credentials
-credentialsModule = require("./credentials");
-
-// Pour éviter toute modification du login/mdp
-const { login, mdp } = require("./credentials");
+configFile = require("./constante/config");
 
 const defaultHeader = {
-  Host: "www.coradrive.fr",
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36",
   "cora-auth": "apidrive",
@@ -33,6 +29,7 @@ getFormToken = () => {
       "https://www.coradrive.fr/massy/ajax.html?tx_coradrive_piajax%5Bcontroller%5D=AjaxLegacy&tx_coradrive_piajax%5Baction%5D=routing&tx_coradrive_piajax%5BextensionName%5D=Coradrive&tx_coradrive_piajax%5BpluginName%5D=PiAjax",
     headers: {
       ...defaultHeader,
+      Host: "www.coradrive.fr",
     },
     data: data,
   };
@@ -40,8 +37,8 @@ getFormToken = () => {
     axios(config)
       .then(function (response) {
         // Copie du cookie
-        let cookie1FromCora = credentialsModule.cookie1FromCora;
-        let cookie2FromCora = credentialsModule.cookie2FromCora;
+        let cookie1FromCora = configFile.cookie1FromCora;
+        let cookie2FromCora = configFile.cookie2FromCora;
 
         // On récupère les 2 cookies
         cookie1FromCora = JSON.stringify(response.headers["set-cookie"][0]);
@@ -59,8 +56,8 @@ getFormToken = () => {
         cookie2FromCora = cookie2FromCora.replace(/\"/, "");
 
         //On sauvegarde les cookies
-        credentialsModule.cookie1FromCora = cookie1FromCora;
-        credentialsModule.cookie2FromCora = cookie2FromCora;
+        configFile.cookie1FromCora = cookie1FromCora;
+        configFile.cookie2FromCora = cookie2FromCora;
 
         // On vérifie la présence d'un token
         if (
@@ -75,7 +72,7 @@ getFormToken = () => {
           // Tout s'est bien déroulé, on save le token
 
           // On récupère le token pour le formulaire
-          credentialsModule.formToken = JSON.stringify(response.data.token);
+          configFile._formToken = JSON.stringify(response.data.token);
           resolve("Ok");
         }
       })
@@ -89,11 +86,11 @@ getLoginToken = () => {
   // Préparation de notre body
   const data =
     '{"user":"' +
-    login +
+    configFile.login +
     '","pass":"' +
-    mdp +
+    configFile.mdp +
     '","lopotdemiel":"","formToken":' +
-    credentialsModule.formToken +
+    configFile.formToken +
     "}";
 
   // Preparation de notre requete
@@ -103,10 +100,8 @@ getLoginToken = () => {
       "https://www.coradrive.fr/massy/ajax.html?tx_coradrive_piajax%5Bcontroller%5D=Authentication&tx_coradrive_piajax%5Baction%5D=tryLogin&tx_coradrive_piajax%5BextensionName%5D=Coradrive&tx_coradrive_piajax%5BpluginName%5D=PiAjax",
     headers: {
       ...defaultHeader,
-      Cookie:
-        credentialsModule.cookie1FromCora +
-        ";" +
-        credentialsModule.cookie2FromCora,
+      Host: "www.coradrive.fr",
+      Cookie: configFile.cookie1FromCora + ";" + configFile.cookie2FromCora,
     },
     data: data,
   };
@@ -128,7 +123,7 @@ getLoginToken = () => {
           // Tout s'est bien déroulé, on save le token
 
           // Récupère le token d'identification
-          credentialsModule.token = response.data.user.token;
+          configFile.token = response.data.user.token;
           resolve("Ok");
         }
       })
@@ -140,29 +135,61 @@ getLoginToken = () => {
   });
 };
 
-module.exports.login = () => {
-  // function (req, res, next) {
-  // Etape 1: Je récupère le token de formulaire, indispensable pour la connexion
+verifyToken = () => {
+  const config = {
+    method: "get",
+    url:
+      "https://api.coradrive.fr/api/me/adressesLad?magasin_id=" +
+      configFile.idShop +
+      "&defaut=1",
+    headers: {
+      ...defaultHeader,
+      Host: "api.coradrive.fr",
+      Authorization: "Bearer " + configFile.token,
+    },
+  };
+
   return new Promise((resolve, reject) => {
-    getFormToken()
+    axios(config)
+      .then(function (response) {
+        resolve("Ok");
+      })
+      .catch(function (err) {
+        reject("Nok");
+      });
+  });
+};
+
+module.exports.login = () => {
+  return new Promise((resolve, reject) => {
+    // Etape 0: Je vérifie l'existence d'un token. Si c'est le cas, je vérifie la connexion
+
+    // Si le token fonctionne, alors je stope là.
+    verifyToken()
       .then(function () {
-        // Etape 2: Si j'ai bien récupéré le token, alors je peux m'idenfitier sur le site et récupérer un token de connexion
-        getLoginToken()
-          .then(function (resultat) {
-            //return res.status(200).send(resultat);
-            resolve("Ok");
-          })
-          .catch(function (err) {
-            // Echec de l'étape 2 (soit erreur de requête soit pas de token)
-            //return res.status(400).send(err);
-            reject(err);
-          });
+        resolve("Ok");
       })
 
-      // Echec de l'étape 1 (soit erreur de requête soit pas de token)
+      // Si le token ne fonctionne pas, je continue
       .catch(function (err) {
-        // return res.status(400).send(err);
-        reject(err);
+        // Etape 1: Je récupère le token de formulaire, indispensable pour la connexion
+        getFormToken()
+          .then(function () {
+            // Etape 2: Si j'ai bien récupéré le token, alors je peux m'idenfitier sur le site et récupérer un token de connexion
+            getLoginToken()
+              .then(function (resultat) {
+                resolve("Ok");
+              })
+              .catch(function (err) {
+                // Echec de l'étape 2 (soit erreur de requête soit pas de token)
+                reject(err);
+              });
+          })
+
+          // Echec de l'étape 1 (soit erreur de requête soit pas de token)
+          .catch(function (err) {
+            reject(err);
+          });
       });
   });
 };
