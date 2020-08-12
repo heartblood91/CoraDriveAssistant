@@ -24,7 +24,7 @@ module.exports.secretKeyToCrypt = function (req, res, next) {
   // Etape 0: Je vérifie l'intégrité de la requête. Si tout est ok, alors je continue le script
 
   verificator
-    .verifyChecksum(req.params.checksum)
+    .verifyAll(req.params.checksum)
     .then(() => {
       new Promise((resolve, reject) => {
         // Je vérifie que l'utilisateur a rentré un mot de passe pour chiffrer / déchiffrer les identifiants

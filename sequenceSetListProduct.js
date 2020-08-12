@@ -227,7 +227,7 @@ module.exports.majListProduct = function (req, res, next) {
   // Etape 0: Je vérifie l'intégrité de la requête. Si tout est ok, alors je continue le script
 
   verificator
-    .verifyChecksum(req.params.checksum)
+    .verifyAll(req.params.checksum)
     .then(() => {
       // Etape 1: Je me connecte
       authModule.login().then(function (resultat) {
