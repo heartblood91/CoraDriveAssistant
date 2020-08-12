@@ -6,13 +6,16 @@ const cryptMachine = require("./cryptSecret");
 module.exports = function (expressServer) {
   // Séquence de MAJ du panier (ajout/soustraction/suppression d'un item)
   expressServer.post(
-    "/update/:type/item/:product",
+    "/update/:type/item/:product/:checksum?",
     sequenceUpdate.updateCartComplete
   );
 
   //Récupère la BDD de produits:
-  expressServer.get("/majListProduct", setListProduct.majListProduct);
+  expressServer.get(
+    "/majListProduct/:checksum?",
+    setListProduct.majListProduct
+  );
 
   //Chiffres les identifiants (login + mdp)
-  expressServer.get("/cryptMyID", cryptMachine.secretKeyToCrypt);
+  expressServer.get("/cryptMyID/:checksum?", cryptMachine.secretKeyToCrypt);
 };
