@@ -110,8 +110,8 @@ writeTokenInFile = (token) => {
 
 getLoginToken = () => {
   // Etape 1: je vérifie que le contenu ne soit pas chiffré
-  const loginDecrypt = decryptMyText(process.env.CORA_login);
-  const mdpDecrypt = decryptMyText(process.env.CORA_mdp);
+  const loginDecrypt = cryptMachine.decryptMyText(process.env.CORA_login);
+  const mdpDecrypt = cryptMachine.decryptMyText(process.env.CORA_mdp);
 
   // Je copie le login et le mot de passe en local (déchiffrés)
   const login = loginDecrypt === null ? process.env.CORA_login : loginDecrypt;
