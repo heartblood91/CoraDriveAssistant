@@ -1,5 +1,5 @@
 // module permettant de vérifier l'intégrité d'une requête
-module.exports.verifyChecksum = (checksum) => {
+verifyChecksum = (checksum) => {
   return new Promise((resolve, reject) => {
     // Existante d'un checksum ?
     const isChecksum = process.env.CORA_Checksum === "" ? false : true;
@@ -19,7 +19,7 @@ module.exports.verifyChecksum = (checksum) => {
 };
 
 // module permettant de vérifier que les informations sont correctements renseignées par l'utilisateur
-module.exports.verifySetting = () => {
+verifySetting = () => {
   return new Promise((resolve, reject) => {
     let message = "";
 
@@ -66,5 +66,28 @@ module.exports.verifySetting = () => {
       // Transmission du message
       reject(message);
     }
+  });
+};
+
+// module permettant de vérifier l'intégrité d'une requête
+module.exports.verifyAll = (checksum) => {
+  return new Promise((resolve, reject) => {
+    //Etape 1: je vérifie l'intégrité de la requête:
+    verifyChecksum(checksum)
+      //si c'est bon je continue
+      .then(() => {
+        //Etape 2: Je vérifie que les settings soient bien renseignés
+        verifySetting()
+          //si c'est bon j'informe l'utilisateur que tout est ok
+          .then(() => {
+            resolve("Ok");
+          })
+
+          //Sinon je me stop là
+          .catch((err) => reject(err));
+      })
+
+      //Sinon je me stop là
+      .catch((err) => reject(err));
   });
 };
