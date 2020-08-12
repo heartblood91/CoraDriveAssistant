@@ -2,6 +2,9 @@ const axios = require("axios");
 const fs = require("fs");
 const dotenv = require("dotenv");
 
+//Fonction à importer pour le déchiffrement
+const cryptMachine = require("./cryptSecret");
+
 // Module contenant les credentials
 configFile = require("./constante/config");
 
@@ -106,12 +109,20 @@ writeTokenInFile = (token) => {
 };
 
 getLoginToken = () => {
+  // Etape 1: je vérifie que le contenu ne soit pas chiffré
+  const loginDecrypt = decryptMyText(process.env.CORA_login);
+  const mdpDecrypt = decryptMyText(process.env.CORA_mdp);
+
+  // Je copie le login et le mot de passe en local (déchiffrés)
+  const login = loginDecrypt === null ? process.env.CORA_login : loginDecrypt;
+  const mdp = mdpDecrypt === null ? process.env.CORA_mdp : mdpDecrypt;
+
   // Préparation de notre body
   const data =
     '{"user":"' +
-    configFile.login +
+    login +
     '","pass":"' +
-    configFile.mdp +
+    mdp +
     '","lopotdemiel":"","formToken":' +
     configFile.formToken +
     "}";

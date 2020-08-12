@@ -1,5 +1,6 @@
 const setListProduct = require("./sequenceSetListProduct");
 const sequenceUpdate = require("./sequenceUpdateCart");
+const cryptMachine = require("./cryptSecret");
 
 // Gestion des routes du serveur backend
 module.exports = function (expressServer) {
@@ -11,4 +12,7 @@ module.exports = function (expressServer) {
 
   //Récupère la BDD de produits:
   expressServer.get("/majListProduct", setListProduct.majListProduct);
+
+  //Chiffres les identifiants (login + mdp)
+  expressServer.get("/cryptMyID", cryptMachine.secretKeyToCrypt);
 };
