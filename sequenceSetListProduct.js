@@ -2,8 +2,9 @@ const axios = require("axios");
 const fs = require("fs");
 
 // Récupère le module de connexion + les credentials
-authModule = require("./authentfication");
-configFile = require("./constante/config");
+const authModule = require("./authentfication");
+const configFile = require("./constante/config");
+const verificator = require("./verify");
 
 //Récupère l'ancienne liste JSON
 const oldUniqueList = require("./constante/list-product.json");
@@ -223,31 +224,38 @@ formatListProduct = () => {
 
 // Récupère la liste des produits sur la dite liste de course
 module.exports.majListProduct = function (req, res, next) {
-  // Etape 1: Je me connecte
-  authModule.login().then(function (resultat) {
-    if (resultat === "Ok") {
-      // Etape 2: Je récupère l'ID de la liste de course utilisée pour créer la BDD parmis l'ensemble des listes de courses en favoris de l'utilisateur
-      getLists()
-        .then(function () {
-          // Etape 3: Si j'ai bien récupéré un ID alors, je peux récupérer le contenu de la liste de course et la formater
-          formatListProduct()
-            .then(function (resultat) {
-              return res.status(200).send(resultat);
+  // Etape 0: Je vérifie l'intégrité de la requête. Si tout est ok, alors je continue le script
+
+  verificator
+    .verifyChecksum(req.params.checksum)
+    .then(() => {
+      // Etape 1: Je me connecte
+      authModule.login().then(function (resultat) {
+        if (resultat === "Ok") {
+          // Etape 2: Je récupère l'ID de la liste de course utilisée pour créer la BDD parmis l'ensemble des listes de courses en favoris de l'utilisateur
+          getLists()
+            .then(function () {
+              // Etape 3: Si j'ai bien récupéré un ID alors, je peux récupérer le contenu de la liste de course et la formater
+              formatListProduct()
+                .then(function (resultat) {
+                  return res.status(200).send(resultat);
+                })
+                .catch(function (err) {
+                  // Echec de l'étape 3 (erreur de requête)
+                  return res.status(400).send(err);
+                });
             })
+
+            // Echec de l'étape 2 (soit erreur de requête soit pas de correspondance)
             .catch(function (err) {
-              // Echec de l'étape 3 (erreur de requête)
               return res.status(400).send(err);
             });
-        })
+        } else {
+          // Echec étape 1
 
-        // Echec de l'étape 2 (soit erreur de requête soit pas de correspondance)
-        .catch(function (err) {
-          return res.status(400).send(err);
-        });
-    } else {
-      // Echec étape 1
-
-      return res.status(400).send("Echec lors de l'authentification");
-    }
-  });
+          return res.status(401).send("Echec lors de l'authentification");
+        }
+      });
+    })
+    .catch((err) => res.status(401).send(err));
 };
