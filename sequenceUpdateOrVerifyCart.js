@@ -4,6 +4,7 @@ const checkCart = require("./checkPanier");
 const googleTranslate = require("./googleSentences");
 const updateProduct = require("./updateProduct");
 const verificator = require("./verify");
+const notification = require("./notif");
 
 module.exports.updateCartComplete = function (req, res, next) {
   //Je récupère les informations transmises dans la requête (type d'update + l'item)
@@ -29,12 +30,18 @@ module.exports.updateCartComplete = function (req, res, next) {
                   googleTranslate
                     .getGoogleItems(ingredientGoogle)
                     .then((product) => {
-                      //Etape 4: Je transmet toutes ces informations pour MAJ le panier
+                      //Etape 4:
+                      // Soit je vérifie la présence du produit dans le panier et je transmet les informations dans les logs ou notifications
+                      // Soit je mets à jour sa quantité
+
                       updateProduct
                         .update(typeUpdate, product)
                         .then(function (resultat) {
-                          notification.notifyMe(resultat);
-                          return res.status(200).send(resultat, "Succes");
+                          notification.notifyMe(
+                            resultat,
+                            typeUpdate === "verify" ? "Info" : "Suces"
+                          );
+                          return res.status(200).send(resultat);
                         })
 
                         .catch((err) => {
@@ -42,6 +49,7 @@ module.exports.updateCartComplete = function (req, res, next) {
                           notification.notifyMe("Voir les logs", "Erreur");
                           return res.status(400).send(err);
                         });
+                      //}
                     })
 
                     .catch((err) => {

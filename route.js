@@ -1,5 +1,5 @@
 const setListProduct = require("./sequenceSetListProduct");
-const sequenceUpdate = require("./sequenceUpdateCart");
+const sequenceUpdate = require("./sequenceUpdateOrVerifyCart");
 const cryptMachine = require("./cryptSecret");
 
 // Gestion des routes du serveur backend

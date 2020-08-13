@@ -5,6 +5,7 @@ const fs = require("fs");
 const authModule = require("./authentfication");
 const configFile = require("./constante/config");
 const verificator = require("./verify");
+const notification = require("./notif");
 
 //Récupère l'ancienne liste JSON
 const oldUniqueList = require("./constante/list-product.json");
@@ -238,8 +239,8 @@ module.exports.majListProduct = function (req, res, next) {
               // Etape 3: Si j'ai bien récupéré un ID alors, je peux récupérer le contenu de la liste de course et la formater
               formatListProduct()
                 .then(function (resultat) {
-                  notification.notifyMe(resultat);
-                  return res.status(200).send(resultat, "Succes");
+                  notification.notifyMe(resultat, "Succes");
+                  return res.status(200).send(resultat);
                 })
                 .catch(function (err) {
                   // Echec de l'étape 3 (erreur de requête)
