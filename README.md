@@ -220,14 +220,14 @@ Je pense qu'il est important de faire un point "sécurité" et sur les données.
 
 ## Evolutions
 
-- Système permettant de vérifier les paramètres obligatoires et facultatifs de l'appli pour éviter un crash ou des erreurs
+- ~~Système permettant de vérifier les paramètres obligatoires et facultatifs de l'appli pour éviter un crash ou des erreurs~~ --> Ok
 - Automatiser la création d'une liste de course pour la base de donnée
 - Application android
-- Mettre en place des retours TTS
+- Mettre en place des retours par notifications
 - Commande permettant de vérifier l'existence du produit dans le panier
 - Préparation de la liste de course via un algorithme basique
 - Faire la même démarche pour les autres drives (Auchan, Leclerc, Intermarché, Leader Price ...)
-- Envoie la liste de course par mail
+- Envoie la liste de course par notification
 
 ## Merci
 
