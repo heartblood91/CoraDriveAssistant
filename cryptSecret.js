@@ -2,6 +2,7 @@ const CryptoJS = require("crypto-js");
 const fs = require("fs");
 const dotenv = require("dotenv");
 const verificator = require("./verify");
+const notification = require("./notif");
 
 // Récupère les informations sensibles
 const configFile = require("./constante/config");
@@ -77,11 +78,16 @@ module.exports.secretKeyToCrypt = function (req, res, next) {
         }
       })
         .then((resultat) => {
-          return res.status(200).send(resultat);
+          notification.notifyMe(resultat, "Succes");
+          res.status(200).send(resultat);
         })
         .catch((err) => {
+          notification.notifyMe(err, "Erreur");
           return res.status(400).send(err);
         });
     })
-    .catch((err) => res.status(401).send(err));
+    .catch((err) => {
+      notification.notifyMe("checksum", "Erreur");
+      res.status(401).send(err);
+    });
 };

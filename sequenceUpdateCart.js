@@ -33,40 +33,50 @@ module.exports.updateCartComplete = function (req, res, next) {
                       updateProduct
                         .update(typeUpdate, product)
                         .then(function (resultat) {
-                          return res.status(200).send(resultat);
+                          notification.notifyMe(resultat);
+                          return res.status(200).send(resultat, "Succes");
                         })
 
                         .catch((err) => {
                           // Echec de l'étape 4
+                          notification.notifyMe("Voir les logs", "Erreur");
                           return res.status(400).send(err);
                         });
                     })
 
                     .catch((err) => {
                       //Echec de l'étape 3
+                      notification.notifyMe("Voir les logs", "Erreur");
                       return res.status(400).send(err);
                     });
                 } else {
                   // Echec étape 2
+                  notification.notifyMe("Echec de la MAJ du panier", "Erreur");
                   return res.status(400).send("Echec de la MAJ du panier");
                 }
               })
 
               // Echec Etape 2
               .catch(function (err) {
+                notification.notifyMe("Voir les logs", "Erreur");
                 return res.status(400).send(err);
               });
 
             // Echec Etape 1
           } else {
+            notification.notifyMe("Echec de l'authentification", "Erreur");
             return res.status(400).send("Echec de l'authentification");
           }
         })
 
         // Echec de l'étape 1
         .catch(function (err) {
+          notification.notifyMe("Voir les logs", "Erreur");
           return res.status(400).send(err);
         });
     })
-    .catch((err) => res.status(401).send(err));
+    .catch((err) => {
+      notification.notifyMe("Checksum", "Erreur");
+      res.status(401).send(err);
+    });
 };

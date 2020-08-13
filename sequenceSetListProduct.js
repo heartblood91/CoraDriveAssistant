@@ -238,24 +238,30 @@ module.exports.majListProduct = function (req, res, next) {
               // Etape 3: Si j'ai bien récupéré un ID alors, je peux récupérer le contenu de la liste de course et la formater
               formatListProduct()
                 .then(function (resultat) {
-                  return res.status(200).send(resultat);
+                  notification.notifyMe(resultat);
+                  return res.status(200).send(resultat, "Succes");
                 })
                 .catch(function (err) {
                   // Echec de l'étape 3 (erreur de requête)
+                  notification.notifyMe("Voir les logs", "Erreur");
                   return res.status(400).send(err);
                 });
             })
 
             // Echec de l'étape 2 (soit erreur de requête soit pas de correspondance)
             .catch(function (err) {
+              notification.notifyMe("Voir les logs", "Erreur");
               return res.status(400).send(err);
             });
         } else {
           // Echec étape 1
-
+          notification.notifyMe("Echec lors de l'authentification", "Erreur");
           return res.status(401).send("Echec lors de l'authentification");
         }
       });
     })
-    .catch((err) => res.status(401).send(err));
+    .catch((err) => {
+      notification.notifyMe("Checksum", "Erreur");
+      res.status(401).send(err);
+    });
 };
