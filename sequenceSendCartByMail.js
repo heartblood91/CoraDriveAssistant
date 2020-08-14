@@ -18,7 +18,16 @@ const formatMyCartToList = () => {
   bodyMail.withHTML =
     '<html> <head> <meta http-equiv="content-type" content="text/html; charset=UTF-8"> </head> <body> Bonjour, <br>Veuillez trouver ci-dessous votre liste de course: <br><ul>';
 
-  configFile.shopCart.itemsPanier.map((item) => {
+  //Je copie la liste des produits dans le panier
+  let shallowShopCart = [...configFile.shopCart.itemsPanier];
+
+  // Je trie les produits par rayon
+  shallowShopCart.sort(function (a, b) {
+    return a.rayon - b.rayon;
+  });
+
+  //Je parcours l'ensemble de la liste:
+  shallowShopCart.map((item) => {
     // Je prends l'ancienne valeur du total et j'aoute le produit (prix unitaire * sa quantité)
     totalPrice = totalPrice + parseFloat(item.prix) * parseInt(item.quantite);
 
