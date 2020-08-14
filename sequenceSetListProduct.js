@@ -76,9 +76,8 @@ const getLists = () => {
         }
       })
       .catch(function (error) {
-        console.log("erreur de connexion à Cora pour la liste");
         // Retourne au client une erreur
-        reject(error);
+        reject("erreur de connexion à Cora pour la liste");
       });
   });
 };
@@ -118,11 +117,13 @@ formatListProduct = () => {
           oldUniqueList.map((oldItem) => {
             //Si je trouve l'ID correspondant  --> ABORT
             if (oldItem.idProduct === item.attributes.produit.data.id) {
-              // Je vérifie que le prix et la désignation n'est pas été MAJ
+              // Je vérifie que le prix, la désignation ou l'image n'est pas été MAJ
               if (
                 oldItem.designation !==
                   item.attributes.produit.data.attributes.designation ||
-                oldItem.prix !== item.attributes.produit.data.attributes.prix
+                oldItem.prix !== item.attributes.produit.data.attributes.prix ||
+                oldItem.visuel !==
+                  item.attributes.produit.data.attributes.visuel
               ) {
                 // Par précaution, je vérifie que la MAJ apporte quelque chose (pas de undefined || null || "" || " ")
                 if (
@@ -131,14 +132,21 @@ formatListProduct = () => {
                     .length === 0 ||
                   item.attributes.produit.data.attributes.prix == null ||
                   item.attributes.produit.data.attributes.prix.trim().length ===
-                    0
+                    0 ||
+                  item.attributes.produit.data.attributes.visuel == null ||
+                  item.attributes.produit.data.attributes.visuel.trim()
+                    .length === 0
                 ) {
                 } else {
                   oldItem.designation =
                     item.attributes.produit.data.attributes.designation;
                   oldItem.prix = item.attributes.produit.data.attributes.prix;
 
-                  iProductMaj += 1;
+                  // Récupère le lien de la photo mais remplace le sous domaine api par www
+                  (oldItem.visuel = item.attributes.produit.data.attributes.visuel
+                    .replace("api", "www")
+                    .replace("###DIMENSION###", "400")), // Récupère le lien de la photo mais remplace le sous domaine api par www + remplace ###DIMENSION### par 400 (val par def.)
+                    (iProductMaj += 1);
                 }
               }
 
@@ -154,6 +162,9 @@ formatListProduct = () => {
               designation: item.attributes.produit.data.attributes.designation,
               googleIngredientCmd:
                 item.attributes.produit.data.attributes.designation, //par défaut il s'agit de la désignation du produit détérminé par Cora
+              visuel: item.attributes.produit.data.attributes.visuel
+                .replace("api", "www")
+                .replace("###DIMENSION###", "400"), // Récupère le lien de la photo mais remplace le sous domaine api par www + remplace ###DIMENSION### par 400 (val par def.)
               pft: item.attributes.produit.data.attributes.pft,
               quantite: 0, // Par défaut on en a 0 dans le panier
               prix: item.attributes.produit.data.attributes.prix,

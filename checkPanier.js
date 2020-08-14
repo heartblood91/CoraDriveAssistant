@@ -67,6 +67,9 @@ module.exports.getIDShoppingCart = () => {
           return {
             idProduct: item.attributes.produit.data.id,
             designation: item.attributes.designation,
+            visuel: item.attributes.produit.data.attributes.visuel
+              .replace("api", "www")
+              .replace("###DIMENSION###", "400"), // Récupère le lien de la photo mais remplace le sous domaine api par www + remplace ###DIMENSION### par 400 (val par def.)
             pft: item.attributes.pft,
             quantite: item.attributes.quantite,
             prix: item.attributes.prix,
