@@ -1,6 +1,7 @@
 const setListProduct = require("./sequenceSetListProduct");
 const sequenceUpdate = require("./sequenceUpdateOrVerifyCart");
 const cryptMachine = require("./cryptSecret");
+const sendCart = require("./sequenceSendCartByMail");
 
 // Gestion des routes du serveur backend
 module.exports = function (expressServer) {
@@ -18,4 +19,7 @@ module.exports = function (expressServer) {
 
   //Chiffres les identifiants (login + mdp)
   expressServer.get("/cryptMyID/:checksum?", cryptMachine.secretKeyToCrypt);
+
+  //Transmet par mail la liste de course
+  expressServer.get("/sendMeCart/:checksum?", sendCart.sendMeCartByMail);
 };

@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 
 //Module permettant d'envoyer un email avec du text simple ou riche (html)
-module.exports.sendMeAMail = (textWihoutHTML, textWithHTML) => {
+module.exports.sendMeAMail = (bodyMail) => {
   return new Promise((resolve, reject) => {
     async function main() {
       // Création du transporteur
@@ -20,8 +20,8 @@ module.exports.sendMeAMail = (textWihoutHTML, textWithHTML) => {
         from: process.env.CORA_Mail_From, // Expéditeur
         to: process.env.CORA_Mail_To, // Destinataires (si plusieurs les séparés par des ,)
         subject: "Liste de course", // Sujet du mail
-        text: textWihoutHTML, // Texte sans HTML
-        html: textWithHTML, // Texte avec du html
+        text: bodyMail.withoutHTML, // Texte sans HTML
+        html: bodyMail.withHTML, // Texte avec du html
       });
       console.log("Message envoyé");
       resolve("Message envoyé");
