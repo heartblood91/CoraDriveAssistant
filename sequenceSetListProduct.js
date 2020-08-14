@@ -147,6 +147,18 @@ formatListProduct = () => {
                     .replace("api", "www")
                     .replace("###DIMENSION###", "400")), // Récupère le lien de la photo mais remplace le sous domaine api par www + remplace ###DIMENSION### par 400 (val par def.)
                     (iProductMaj += 1);
+
+                  // Récupère le n° du rayon
+                  oldItem.rayon =
+                    item.attributes.produit.data.attributes.visuel.split(
+                      "/"
+                    )[7] === undefined
+                      ? null
+                      : parseInt(
+                          item.attributes.produit.data.attributes.visuel
+                            .split("/")[7]
+                            .replace("R", "")
+                        );
                 }
               }
 
@@ -165,6 +177,16 @@ formatListProduct = () => {
               visuel: item.attributes.produit.data.attributes.visuel
                 .replace("api", "www")
                 .replace("###DIMENSION###", "400"), // Récupère le lien de la photo mais remplace le sous domaine api par www + remplace ###DIMENSION### par 400 (val par def.)
+              // Récupère le n° du rayon
+              rayon:
+                item.attributes.produit.data.attributes.visuel.split("/")[7] ===
+                undefined
+                  ? null
+                  : parseInt(
+                      item.attributes.produit.data.attributes.visuel
+                        .split("/")[7]
+                        .replace("R", "")
+                    ),
               pft: item.attributes.produit.data.attributes.pft,
               quantite: 0, // Par défaut on en a 0 dans le panier
               prix: item.attributes.produit.data.attributes.prix,

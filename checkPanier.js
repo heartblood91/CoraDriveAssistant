@@ -70,6 +70,16 @@ module.exports.getIDShoppingCart = () => {
             visuel: item.attributes.produit.data.attributes.visuel
               .replace("api", "www")
               .replace("###DIMENSION###", "400"), // Récupère le lien de la photo mais remplace le sous domaine api par www + remplace ###DIMENSION### par 400 (val par def.)
+            // Récupère le n° du rayon
+            rayon:
+              item.attributes.produit.data.attributes.visuel.split("/")[7] ===
+              undefined
+                ? null
+                : parseInt(
+                    item.attributes.produit.data.attributes.visuel
+                      .split("/")[7]
+                      .replace("R", "")
+                  ),
             pft: item.attributes.pft,
             quantite: item.attributes.quantite,
             prix: item.attributes.prix,
