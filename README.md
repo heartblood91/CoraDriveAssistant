@@ -1,4 +1,4 @@
-<img src="https://cdn.hidemyhome.ovh/CoraDriveAssistant.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraDriveAssistant.webp" alt="Logo de l'appli" width="300" height="200" />
+<p align="center"><img src="https://cdn.hidemyhome.ovh/CoraDriveAssistant.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraDriveAssistant.webp" alt="Logo de l'appli" width="300" height="200" /></p>
 
 # CoraDriveAssistant, l'intelligence de Google couplée au drive de Cora
 
@@ -35,15 +35,17 @@ Terminé le background, entrons dans la partie technique:
 Commençons par les commandes vocales:
 
 - Vous pouvez ajouter, soustraire ou retirer un produit de votre liste de course
-- Mettre à jour une base de donnée de produits (**facultatif**)
+- **Facultatif:**
+  - Mettre à jour une base de donnée de produits.
+  - Recevoir l'intégralité de son panier par mail.
 
 Ces commandes vocales, via weebhocks d'IFTTT font une requête vers le serveur backend.
 
 2. Le serveur backend
 
-Le serveur backend reçoit une requête d'IFTTT contenant la tâche à executer ((Ajout | Soustraction | Suppression ) + item ou MAJ de la "BDD").
+Le serveur backend reçoit une requête d'IFTTT contenant la tâche à executer ((Ajout | Soustraction | Suppression | Vérifier) + item ou MAJ de la "BDD").
 
-Dans le cadre d'une mise à jour du panier, si la requête est conforme alors:
+<u>Dans le cadre d'une mise à jour du panier, si la requête est conforme alors:</u>
 
 1. Il se connecte à CoraDrive
    - Si un token est présent, il s'en sert.
@@ -51,9 +53,9 @@ Dans le cadre d'une mise à jour du panier, si la requête est conforme alors:
 2. Il récupère les informations essentielles sur le panier
 3. Je nettoie le bruit reçu par la commande vocal pour accéder au nom du produit
 4. Je cherche une correspondance entre le produit et la base de donnée
-5. Si tout est ok, alors je fais ma requête à CoraDrive. (Ajout / Soustraction / Suppression de l'item)
+5. Si tout est ok, alors je fais ma requête à CoraDrive. (Ajout / Soustraction / Suppression / vérification de l'item )
 
-Dans le cadre d'une mise à jour de la "BDD", si la requête est conforme alors:
+<u>Dans le cadre d'une mise à jour de la "BDD", si la requête est conforme alors:</u>
 
 1. Il se connecte à CoraDrive
    - Si un token est présent, il s'en sert.
@@ -67,6 +69,15 @@ Dans le cadre d'une mise à jour de la "BDD", si la requête est conforme alors:
      - La liste des produits ajoutés
      - La liste des produits indisponibles que je n'ai pas pu ajouter
      - La liste des produits MAJ
+
+<u>Pour l'envoie par mail de son panier:</u>
+
+1. Il se connecte à CoraDrive
+   - Si un token est présent, il s'en sert.
+   - Si absence de token ou périmé, alors il se connecte via les identifiants. Puis il enregistre ce token en local dans le fichier .env
+2. Il récupère les informations essentielles sur le panier
+3. Il réorganise le panier par rayon
+4. Créer le mail puis l'envoie
 
 ## Vidéos
 
@@ -91,9 +102,16 @@ $ npm i
    - L'id du magasin (vous pouvez le trouver dans le fichier constante/list-shop.json) (_CORA_idShop_)
    - Votre identifiant et mot de passe pour vous connecter à CoraDrive (_CORA_login & CORA_mdp_)
    - Le nom de votre liste de course que vous utiliserez comme référence pour votre base de donnée (_CORA_nameOfListUseForBDD_)
-   - FACULTATIF:
+   - **FACULTATIF:**
      - Une passphrase ou un long mot de passe pour chiffrer votre identifiant et votre mot de passe
      - Un mot de passe / token pour vérifier l'intégrité de vos requêtes IFTTT - votre backend (_CORA_Checksum_)
+     - L'envoie de notification (_CORA_notif_) incluant la clé Webhooks pour le bon fonctionnement (_CORA_Webhooks_Key_)
+     - Les paramètres pour l'envoie de mail:
+       - Le serveur SMTP (_CORA_Mail_SMTP_)
+       - Le port (_CORA_Mail_Port_)
+       - Les identifiants de connexion (_CORA_Mail_User_ & _CORA_Mail_Pass_)
+       - L'expéditeur (_CORA_Mail_From_)
+       - Le(s) destinataire(s) (_CORA_Mail_To_)
 
 2. Après, rennomer le fichier .env
 
@@ -129,21 +147,21 @@ $ npm run prod
 
 **Pour avoir fait plusieurs tests, vous ne pouvez pas utiliser de phrase contenant le mot _liste_, car Google a déjà paramétré ce trigger. Vous ne pouvez pas non plus, utiliser le mot _CoraDrive_ sinon Google fera une recherche sur internet.**
 
-<center><img src="https://cdn.hidemyhome.ovh/IFTTT-Step1.webp" data-canonical-src="https://cdn.hidemyhome.ovh/IFTTT-Step1.webp" alt="Configuration google assistant" /></center>
+<p align="center"><img src="https://cdn.hidemyhome.ovh/IFTTT-Step1.webp" data-canonical-src="https://cdn.hidemyhome.ovh/IFTTT-Step1.webp" alt="Configuration google assistant" /></p>
 
 5. Cliquez sur _That_ puis _webhooks_ puis _Make a web request_
 
 6. Remplissez le formulaire comme ceci:
-   - _Url_ --> http[**s**]: //[**nom de domaine ou ip**]/update/[**add ou remove ou delete**]/item/{{TextField}}
+   - _Url_ --> http[**s**]: //[**nom de domaine ou ip**]/update/[**add ou remove ou delete ou verify**]/item/{{TextField}}/[facultatif: token]
    - _Methode_ --> POST
    - _Content Type_ --> Application/json
    - _Body_ --> Vide
 
 **Si vous avez configurer un token pour les requêtes vers votre serveur ajouter _/[Votre token]_ à la fin de l'url (_Ex: https://jadoretonappli.fr/update/add/item/{{TextField}}/ceciestmonsupermotdepassetokendelamortquituepourprotegermonbeauserveurdesvilainsrobots_ )**
 
-**Dans l'url _add_ permet d'ajouter un élément dans votre panier, _remove_ permet de soustraire et _delete_ le retire complétement**
+**Dans l'url _add_ permet d'ajouter un élément dans votre panier, _remove_ permet de soustraire, _delete_ le retire complétement et _verify_ permet de vérifier la présence d'un produit dans le panier**
 
-<center><img src="https://cdn.hidemyhome.ovh/IFTTT-Step2.webp" data-canonical-src="https://cdn.hidemyhome.ovh/IFTTT-Step2.webp" alt="Configuration google assistant" /></center>
+<p align="center"><img src="https://cdn.hidemyhome.ovh/IFTTT-Step2.webp" data-canonical-src="https://cdn.hidemyhome.ovh/IFTTT-Step2.webp" alt="Configuration google assistant" /></p>
 
 7. Vous pouvez donner un nom / description à votre recette.
 
@@ -153,18 +171,97 @@ Voici, en images, le résumé de la configuration complète:
 
 <u>**Ajout:**</u>
 
-<center>
-<img src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTAdd.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTAdd.webp" alt="Configuration ajout" width="480" height="500" /></center>
+<p align="center">
+<img src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTAdd.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTAdd.webp" alt="Configuration ajout" width="480" height="500" /></p>
 
 <u>**Soustraction:**</u>
 
-<center>
-<img src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTRemove.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTRemove.webp" alt="Configuration soustraction" width="480" height="500" /></center>
+<p align="center">
+<img src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTRemove.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTRemove.webp" alt="Configuration soustraction" width="480" height="500" /></p>
 
 <u>**Suppression:**</u>
 
-<center>
-<img src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTDelete.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTDelete.webp" alt="Configuration suppression" width="480" height="500" /></center>
+<p align="center">
+<img src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTDelete.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTDelete.webp" alt="Configuration suppression" width="480" height="500" /></p>
+
+<u>**Vérification:**</u>
+
+<p align="center">
+<img src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTVerify.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTVerify.webp" alt="Configuration vérification" width="602" height="500" /></p>
+
+<u>**FACULTATIF:**</u>
+
+- **Ajout des notifications**
+
+Cette fonctionnalité permet de recevoir, via les notifications toutes les réponses aux requêtes. Quand vous allez demander à Google de mettre à jour le panier, le seul retour que vous allez recevoir est la bonne compréhension de votre demande. Mais rien sur la réél mise à jour de votre panier. Avec les notifications, vous serez si le produit a été réélement ajouté. Pour configurer la notification, vous devez:
+
+- Passer _CORA_notif_ de _false_ à _true_
+- Renseigner votre clé Webhooks. Pour l'obtenir:
+  - Connectez-vous à IFTTT
+  - Cliquez sur ce lien: https://ifttt.com/maker_webhooks
+  - Puis cliquez sur documentation, en haut à droite.
+  - Vous accéderez à une page de ce style, contenant votre clé (_Your key is:_)
+
+<p align="center">
+<img src="https://cdn.hidemyhome.ovh/IFTTT-Notif-Webhooks.webp" data-canonical-src="https://cdn.hidemyhome.ovh/IFTTT-Notif-Webhooks.webp" alt="Configuration webhooks notification" width="886" height="500" /></p>
+
+Vous devez aussi ajouter une recette à IFTTT. Pour cela, vous devez:
+
+1. Connectez-vous sur le site d'IFTTT (_https://ifttt.com/_)
+
+2. Cliquez sur _Create_ puis _Applets_
+
+3. Cliquez sur _This_ puis _Webhooks_ puis _Receive a web request_ et renseigner un nom pour l'événement (_Ex: CoraDriveAssistant_)
+
+<p align="center">
+<img src="https://cdn.hidemyhome.ovh/IFTTT-Notif-Step.webp" data-canonical-src="https://cdn.hidemyhome.ovh/IFTTT-Notif-Step.webp" alt="Configuration webhooks notification" width="281" height="500" /></p>
+
+4. Remplissez le formulaire comme ceci:
+   - Title: CoraDriveAssistant:{{Value2}}
+   - Message: {{Value:1}}
+
+La configuration complète donnera ceci:
+
+<p align="center">
+<img src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTNotif.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTNotif.webp" alt="Configuration complète notifications" width="602" height="500" /></p>
+
+Cela vous permettra de récevoir des notifications de succès, d'informations, ou d'erreur comme ces deux exemples:
+
+<p align="center">
+<img src="https://cdn.hidemyhome.ovh/Ex-Notif-Succes-Erreur.webp" data-canonical-src="https://cdn.hidemyhome.ovh/Ex-Notif-Succes-Erreur.webp" alt="Exemple de notifications (Succès VS erreur)" width="300" height="300" /></p>
+
+- **Envoie de la liste de course par mail**
+
+Ce module vous permet de recevoir, directement par mail, votre panier. Il vous indique, l'image du produit, sa quantité, sa désignation (si l'image est implicite), et le prix total du panier. Si vous souhaitez le configurer, vous devez:
+
+1. Connectez-vous sur le site d'IFTTT ou créez votre compte si vous n'en avez pas (_https://ifttt.com/_)
+
+2. Cliquez sur _Create_ puis _Applets_
+
+3. Cliquez sur _This_ puis _Google Assistant_ puis _Say a simple phrase_
+
+4. Remplissez le formulaire selon vos préférences, pour ma part, j'ai mis ceci
+
+   - _What do you want to say?_ --> envoie moi mon panier
+   - _What do you want the Assistant to say in response?_ --> Ok, j'envoie votre liste de course CoraDrive sur votre adresse mail.
+   - _Language_ French
+
+5. Cliquez sur _That_ puis _webhooks_ puis _Make a web request_
+
+6. Remplissez le formulaire comme ceci:
+   - _Url_ --> http[**s**]: //[**nom de domaine ou ip**]/sendMeCart/[facultatif: token]
+   - _Methode_ --> GET
+   - _Content Type_ --> Application/json
+   - _Body_ --> Vide
+
+**RAPPEL: Si vous avez configurer un token pour les requêtes vers votre serveur ajouter _/[Votre token]_ à la fin de l'url (_Ex: https://jadoretonappli.fr/sendMeCart/ceciestmonsupermotdepassetokendelamortquituepourprotegermonbeauserveurdesvilainsrobots_ )**
+
+7. Vous pouvez donner un nom / description à votre recette.
+
+Voici, en images, le résumé de la configuration complète:
+
+<p align="center">
+<img src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTMail.webp" data-canonical-src="https://cdn.hidemyhome.ovh/CoraResumeIFTTTMail.webp" alt="Config complète mail" width="572" height="500" /></p>
 
  <section id="configBDD">
 ## Personnalisation de la base de donnée
@@ -203,6 +300,7 @@ Il s'agit juste d'une liste des packages utilisées et des mes raisons:
 - Uuid (nécessaire pour le panier CoraDrive) --> https://www.npmjs.com/package/uuid
 - crypto-js (Permet de chiffrer/dechiffrer votre login et votre mot de passe) --> https://www.npmjs.com/package/crypto-js
 - dotenv (Pour la gestion des variables d'environnement) --> https://www.npmjs.com/package/dotenv
+- Nodemailer (Pour envoyer des mails en texte simple et html) --> https://nodemailer.com/about/
 - Cors (Pour éviter les conflits de nom de domaine) --> https://github.com/expressjs/cors
 - Compression (Reduit la taille de la réponse) --> https://github.com/expressjs/compression
 - Helmet (Protège l'en-tête de la requête) --> https://helmetjs.github.io/
@@ -221,13 +319,16 @@ Je pense qu'il est important de faire un point "sécurité" et sur les données.
 ## Evolutions
 
 - ~~Système permettant de vérifier les paramètres obligatoires et facultatifs de l'appli pour éviter un crash ou des erreurs~~ --> Ok
-- Automatiser la création d'une liste de course pour la base de donnée
-- Application android
-- Mettre en place des retours par notifications
-- Commande permettant de vérifier l'existence du produit dans le panier
+- ~~Commande permettant de vérifier l'existence du produit dans le panier~~
+- ~~Mettre en place des retours par notifications~~ --> Ok
+- ~~Envoie la liste de course par mail~~
+- Vider le panier en une seule commande
 - Préparation de la liste de course via un algorithme basique
+- Automatiser la création d'une liste de course pour la base de donnée
+- Proposer une base de donnée selon l'ensemble des commandes
+- Application android
+- Voir pour module sur HomeAssitant
 - Faire la même démarche pour les autres drives (Auchan, Leclerc, Intermarché, Leader Price ...)
-- Envoie la liste de course par notification
 
 ## Merci
 
