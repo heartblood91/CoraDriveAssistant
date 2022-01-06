@@ -4,6 +4,13 @@
 
 > Application permettant de faire le lien entre les produits disponibles sur CoraDrive et votre assistant Google
 
+
+***
+# <center> * * * [DEPRECATED] * * * </center>
+06/01/2022: L'API de CoraDrive a changé. L'authentification ne fonctionne plus de la même manière. A ce jour, il n'utilise plus un pot de miel, une balise dans le header et un système d'échange de token, mais un captcha.
+De plus, IFTTT a changé sa politique tarifaire. Désormais seul 2 recettes sont gratuites. Pour faire fonctionner cette application, l'obtention d'un compte PRO est obligatoire. Je passe ce repo en read only en attendant de trouver une meilleur solution.   
+***
+
 ## Index
 
 - [Description](#description)
@@ -120,7 +127,7 @@ $ npm i
 - En mode développement ou qualification:
 
 ```shell
-$ npm run start
+$ npm run server 
 ```
 
 - En mode production:

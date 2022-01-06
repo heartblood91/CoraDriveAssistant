@@ -15,7 +15,7 @@
     "uuid": "^8.2.0"
   },
   "scripts": {
-    "server": "set NODE_ENV=developpement && nodemon ./index.js",
+    "server": "set NODE_ENV=developpement && export NODE_ENV=developpement && nodemon ./index.js",
     "prod": "export NODE_ENV=production && node ./index.js",
     "test": "mocha --timeout 5000"
   },
